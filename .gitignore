@@ -1,0 +1,24 @@
+# Derlenmiş ikili dosyalar
+/bin/
+*.exe
+
+# Ortam ve sır dosyaları
+.env
+.env.*
+!.env.example
+
+# Çalışma zamanı verileri
+/data/
+*.sqlite
+*.sqlite3
+
+# Test & kalite çıktıları
+/coverage.out
+/coverage.html
+*.prof
+
+# Editör / OS
+.DS_Store
+.idea/
+.vscode/
+*.swp
