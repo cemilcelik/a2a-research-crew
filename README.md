@@ -74,7 +74,7 @@ Ayrıntılı mimari ve akışlar için [`docs/`](./docs) dizinine bakın.
 ## Yol haritası
 
 - [x] **Phase 0** — İskelet, bağımlılıklar, tooling, Docker artefaktları
-- [ ] **Phase 1** — Ortak çekirdek (config, LLM, MCP, JWT, taskstore, memory)
+- [x] **Phase 1** — Ortak çekirdek (config, LLM, MCP, JWT, taskstore, memory)
 - [ ] **Phase 2** — İlk uzman ajan (`market-scout`) uçtan uca
 - [ ] **Phase 3** — Diğer uzmanlar
 - [ ] **Phase 4** — Organizatör (REST girişi + gRPC + streaming)
