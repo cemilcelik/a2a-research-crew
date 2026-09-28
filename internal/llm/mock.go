@@ -30,8 +30,8 @@ func NewMock(defaultModel string) *Mock {
 }
 
 // NewScripted, verilen yanıtları sırayla döndüren bir Mock oluşturur. Kuyruk
-// tükendiğinde son yanıt tekrar eder. Araç çağrısı döngülerini test etmek için
-// kullanışlıdır.
+// tükendiğinde varsayılan echo davranışına döner. Araç çağrısı döngülerini test
+// etmek için kullanışlıdır.
 func NewScripted(responses ...Response) *Mock {
 	return &Mock{defaultModel: "mock-model", queue: responses}
 }
