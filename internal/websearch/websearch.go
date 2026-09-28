@@ -33,7 +33,7 @@ func New(ctx context.Context, cfg *config.Config) (*mcpx.Client, func(), error) 
 		return client, func() { _ = client.Close() }, nil
 	}
 
-	client, cleanup, err := mcpx.NewFakeServer(ctx, "web-search", []mcpx.FakeTool{
+	client, cleanup, err := mcpx.NewInProcessServer(ctx, "web-search", []mcpx.InProcessTool{
 		{
 			Name:        ToolName,
 			Description: "Searches the web for a query and returns summarized results.",

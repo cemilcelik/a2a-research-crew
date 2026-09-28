@@ -25,7 +25,7 @@ import (
 func TestMarketScoutOverGRPC(t *testing.T) {
 	ctx := context.Background()
 
-	mcpClient, cleanup, err := mcpx.NewFakeServer(ctx, "web-search", []mcpx.FakeTool{
+	mcpClient, cleanup, err := mcpx.NewInProcessServer(ctx, "web-search", []mcpx.InProcessTool{
 		{
 			Name:        "web_search",
 			Description: "Searches the web",
@@ -39,7 +39,7 @@ func TestMarketScoutOverGRPC(t *testing.T) {
 		},
 	})
 	if err != nil {
-		t.Fatalf("NewFakeServer() error: %v", err)
+		t.Fatalf("NewInProcessServer() error: %v", err)
 	}
 	defer cleanup()
 

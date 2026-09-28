@@ -10,9 +10,10 @@ import (
 	"a2a-research-crew/internal/buildinfo"
 )
 
-// FakeTool, in-process (sahte) bir MCP sunucusunda sunulacak tek bir araçtır.
-// Gerçek API anahtarı olmadan dry-run yapmayı ve testleri mümkün kılar.
-type FakeTool struct {
+// InProcessTool, in-process bir MCP sunucusunda sunulacak tek bir araçtır.
+// Testler, dry-run ve süreç içi gerçek araç sunucuları (ör. sqlite, dosya
+// sistemi) bunu kullanır.
+type InProcessTool struct {
 	Name        string
 	Description string
 	// Schema, aracın argümanları için JSON Schema'dır. Boşsa basit bir nesne
@@ -22,9 +23,9 @@ type FakeTool struct {
 	Handler func(ctx context.Context, args map[string]any) (string, error)
 }
 
-// NewFakeServer, verilen araçlarla in-process bir MCP sunucusu başlatır ve ona
+// NewInProcessServer, verilen araçlarla in-process bir MCP sunucusu başlatır ve ona
 // bağlı bir Client döner. Dönen kapatma fonksiyonu oturumu sonlandırır.
-func NewFakeServer(ctx context.Context, name string, tools []FakeTool) (*Client, func(), error) {
+func NewInProcessServer(ctx context.Context, name string, tools []InProcessTool) (*Client, func(), error) {
 	server := sdk.NewServer(&sdk.Implementation{
 		Name:    name,
 		Version: buildinfo.Version,
@@ -37,14 +38,14 @@ func NewFakeServer(ctx context.Context, name string, tools []FakeTool) (*Client,
 		}
 		server.AddTool(
 			&sdk.Tool{Name: tool.Name, Description: tool.Description, InputSchema: schema},
-			newFakeHandler(tool),
+			newInProcessHandler(tool),
 		)
 	}
 
 	serverTransport, clientTransport := sdk.NewInMemoryTransports()
 	serverSession, err := server.Connect(ctx, serverTransport, nil)
 	if err != nil {
-		return nil, nil, fmt.Errorf("mcpx: start fake server %q: %w", name, err)
+		return nil, nil, fmt.Errorf("mcpx: start in-process server %q: %w", name, err)
 	}
 
 	client, err := ConnectTransport(ctx, name, clientTransport)
@@ -60,7 +61,7 @@ func NewFakeServer(ctx context.Context, name string, tools []FakeTool) (*Client,
 	return client, cleanup, nil
 }
 
-func newFakeHandler(tool FakeTool) sdk.ToolHandler {
+func newInProcessHandler(tool InProcessTool) sdk.ToolHandler {
 	return func(ctx context.Context, req *sdk.CallToolRequest) (*sdk.CallToolResult, error) {
 		args := map[string]any{}
 		if raw := req.Params.Arguments; len(raw) > 0 {

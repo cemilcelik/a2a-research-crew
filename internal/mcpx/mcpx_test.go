@@ -8,7 +8,7 @@ import (
 
 func TestFakeServerListAndCall(t *testing.T) {
 	ctx := context.Background()
-	client, cleanup, err := NewFakeServer(ctx, "fake", []FakeTool{
+	client, cleanup, err := NewInProcessServer(ctx, "fake", []InProcessTool{
 		{
 			Name:        "greet",
 			Description: "Greets a person",
@@ -23,7 +23,7 @@ func TestFakeServerListAndCall(t *testing.T) {
 		},
 	})
 	if err != nil {
-		t.Fatalf("NewFakeServer() error: %v", err)
+		t.Fatalf("NewInProcessServer() error: %v", err)
 	}
 	defer cleanup()
 
@@ -57,7 +57,7 @@ func TestFakeServerListAndCall(t *testing.T) {
 
 func TestFakeServerToolError(t *testing.T) {
 	ctx := context.Background()
-	client, cleanup, err := NewFakeServer(ctx, "fake", []FakeTool{
+	client, cleanup, err := NewInProcessServer(ctx, "fake", []InProcessTool{
 		{
 			Name: "boom",
 			Handler: func(_ context.Context, _ map[string]any) (string, error) {
@@ -66,7 +66,7 @@ func TestFakeServerToolError(t *testing.T) {
 		},
 	})
 	if err != nil {
-		t.Fatalf("NewFakeServer() error: %v", err)
+		t.Fatalf("NewInProcessServer() error: %v", err)
 	}
 	defer cleanup()
 

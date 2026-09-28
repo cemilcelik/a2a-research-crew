@@ -9,18 +9,18 @@ import (
 
 func newFakeClient(t *testing.T, name string, toolNames ...string) *mcpx.Client {
 	t.Helper()
-	tools := make([]mcpx.FakeTool, 0, len(toolNames))
+	tools := make([]mcpx.InProcessTool, 0, len(toolNames))
 	for _, toolName := range toolNames {
-		tools = append(tools, mcpx.FakeTool{
+		tools = append(tools, mcpx.InProcessTool{
 			Name: toolName,
 			Handler: func(_ context.Context, _ map[string]any) (string, error) {
 				return name + ":" + toolName, nil
 			},
 		})
 	}
-	client, cleanup, err := mcpx.NewFakeServer(context.Background(), name, tools)
+	client, cleanup, err := mcpx.NewInProcessServer(context.Background(), name, tools)
 	if err != nil {
-		t.Fatalf("NewFakeServer(%s) error: %v", name, err)
+		t.Fatalf("NewInProcessServer(%s) error: %v", name, err)
 	}
 	t.Cleanup(cleanup)
 	return client
