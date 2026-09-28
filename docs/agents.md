@@ -63,3 +63,35 @@ sequenceDiagram
 - **Artefakt**: `market-brief`.
 - **Taşıma**: yalnızca gRPC (ajanlar arası iletişim).
 - **Model**: `MARKET_SCOUT_MODEL` (boşsa sağlayıcı varsayılanı).
+
+## competitor-analyst (Phase 3)
+
+- **Skill**: `competitor_analysis`.
+- **Araç**: izole **sqlite** MCP çalışma alanı — `run_sql`, `list_tables`.
+- **İzolasyon**: SQL, uygulamanın operasyonel PostgreSQL verisine erişemez;
+  ajan yalnızca kendi sqlite dosyasında çalışır (`MCP_SQLITE_DIR`).
+- **Artefakt**: `competitor-matrix`.
+- **Model**: `COMPETITOR_ANALYST_MODEL`.
+
+## report-writer (Phase 3)
+
+- **Skill**: `report_writing`.
+- **Araç**: kısıtlanmış (jail) **dosya sistemi** MCP çalışma alanı —
+  `write_file`, `read_file`, `list_dir`.
+- **İzolasyon**: tüm yollar `MCP_FS_ROOT` altına hapsedilir; `../` ile kaçış
+  köke normalize edilir.
+- **Artefakt**: `final-report`.
+- **Model**: `REPORT_WRITER_MODEL`.
+
+## MCP araç sunucuları
+
+| Sunucu | Paket | Araçlar | Amaç |
+|---|---|---|---|
+| web-search | `internal/websearch` | `web_search` | Pazar verisi toplama (gerçek HTTP veya in-process) |
+| sqlite | `internal/sqlitemcp` | `run_sql`, `list_tables` | İzole SQL analizi |
+| filesystem | `internal/workspacefs` | `write_file`, `read_file`, `list_dir` | Kısıtlanmış dosya yazımı |
+
+Tümü MCP protokolü üzerinden konuşur. sqlite ve filesystem sunucuları süreç
+içinde (`mcpx.NewInProcessServer`) çalışır; web-search harici bir URL verilirse
+gerçek bir HTTP MCP sunucusuna bağlanır.
+

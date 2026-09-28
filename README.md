@@ -76,7 +76,7 @@ Ayrıntılı mimari ve akışlar için [`docs/`](./docs) dizinine bakın.
 - [x] **Phase 0** — İskelet, bağımlılıklar, tooling, Docker artefaktları
 - [x] **Phase 1** — Ortak çekirdek (config, LLM, MCP, JWT, taskstore, memory)
 - [x] **Phase 2** — İlk uzman ajan (`market-scout`) uçtan uca
-- [ ] **Phase 3** — Diğer uzmanlar
+- [x] **Phase 3** — Diğer uzmanlar (`competitor-analyst`, `report-writer`)
 - [ ] **Phase 4** — Organizatör (REST girişi + gRPC + streaming)
 - [ ] **Phase 5** — CLI
 - [ ] **Phase 6** — Kalıcılık ve sağlamlaştırma
