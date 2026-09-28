@@ -41,6 +41,7 @@ const (
 	EnvMCPWebSearchKey = "MCP_WEBSEARCH_API_KEY"
 	EnvMCPWebSearchURL = "MCP_WEBSEARCH_URL"
 	EnvMCPSQLiteDir    = "MCP_SQLITE_DIR"
+	EnvMCPFSRoot       = "MCP_FS_ROOT"
 
 	EnvBlobStore      = "BLOB_STORE"
 	EnvBlobFSRoot     = "BLOB_FS_ROOT"
@@ -64,6 +65,7 @@ const (
 	defaultJWTRefreshTTL = 7 * 24 * time.Hour
 	defaultLLMProvider   = "mock"
 	defaultMCPSQLiteDir  = "./data/sqlite"
+	defaultMCPFSRoot     = "./data/workspace"
 	defaultBlobStore     = "fs"
 	defaultBlobFSRoot    = "./data/artifacts"
 	defaultMinioBucket   = "artifacts"
@@ -129,6 +131,7 @@ type MCPConfig struct {
 	WebSearchAPIKey string
 	WebSearchURL    string
 	SQLiteDir       string
+	FSRoot          string
 }
 
 // BlobConfig, artefakt blob deposu ayarlarını taşır.
@@ -189,6 +192,7 @@ func Load() (*Config, error) {
 			WebSearchAPIKey: os.Getenv(EnvMCPWebSearchKey),
 			WebSearchURL:    os.Getenv(EnvMCPWebSearchURL),
 			SQLiteDir:       getenv(EnvMCPSQLiteDir, defaultMCPSQLiteDir),
+			FSRoot:          getenv(EnvMCPFSRoot, defaultMCPFSRoot),
 		},
 		Blob: BlobConfig{
 			Store:          getenv(EnvBlobStore, defaultBlobStore),
