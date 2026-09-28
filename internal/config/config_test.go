@@ -92,11 +92,11 @@ func TestLoadRejectsInvalidDuration(t *testing.T) {
 func clearEnv(t *testing.T) {
 	t.Helper()
 	keys := []string{
-		EnvAppEnv, EnvLogLevel,
+		EnvAppEnv, EnvLogLevel, EnvAgentAdvertiseHost,
 		EnvPostgresHost, EnvPostgresPort, EnvPostgresUser, EnvPostgresPassword, EnvPostgresDB, EnvPostgresSSLMode,
 		EnvJWTSecret, EnvJWTIssuer, EnvJWTAccessTTL, EnvJWTRefreshTTL,
 		EnvLLMProvider, EnvLLMOpenAIKey, EnvLLMAnthropicKey, EnvLLMGeminiKey, EnvLLMCompatBaseURL, EnvLLMCompatAPIKey,
-		EnvMCPWebSearchKey, EnvMCPSQLiteDir,
+		EnvMCPWebSearchKey, EnvMCPSQLiteDir, EnvMCPWebSearchURL,
 		EnvBlobStore, EnvBlobFSRoot, EnvMinioEndpoint, EnvMinioAccessKey, EnvMinioSecretKey, EnvMinioBucket,
 	}
 	for _, k := range keys {

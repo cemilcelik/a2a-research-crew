@@ -16,6 +16,8 @@ import (
 const (
 	EnvAppEnv   = "APP_ENV"
 	EnvLogLevel = "LOG_LEVEL"
+	// EnvAgentAdvertiseHost, AgentCard'ta ilan edilecek ana bilgisayar adıdır.
+	EnvAgentAdvertiseHost = "AGENT_ADVERTISE_HOST"
 
 	EnvPostgresHost     = "POSTGRES_HOST"
 	EnvPostgresPort     = "POSTGRES_PORT"
@@ -37,6 +39,7 @@ const (
 	EnvLLMCompatAPIKey  = "LLM_OPENAI_COMPAT_API_KEY"
 
 	EnvMCPWebSearchKey = "MCP_WEBSEARCH_API_KEY"
+	EnvMCPWebSearchURL = "MCP_WEBSEARCH_URL"
 	EnvMCPSQLiteDir    = "MCP_SQLITE_DIR"
 
 	EnvBlobStore      = "BLOB_STORE"
@@ -64,12 +67,17 @@ const (
 	defaultBlobStore     = "fs"
 	defaultBlobFSRoot    = "./data/artifacts"
 	defaultMinioBucket   = "artifacts"
+	defaultAdvertiseHost = "127.0.0.1"
 )
 
 // Config, uygulamanın tüm yapılandırmasını taşır.
 type Config struct {
 	AppEnv   string
 	LogLevel string
+
+	// AdvertiseHost, AgentCard içinde duyurulacak ana bilgisayar adıdır
+	// (yerel geliştirmede 127.0.0.1, compose'da servis adı).
+	AdvertiseHost string
 
 	Postgres PostgresConfig
 	JWT      JWTConfig
@@ -119,6 +127,7 @@ type LLMConfig struct {
 // MCPConfig, MCP sunucuları için dış araç yapılandırmasını taşır.
 type MCPConfig struct {
 	WebSearchAPIKey string
+	WebSearchURL    string
 	SQLiteDir       string
 }
 
@@ -151,8 +160,9 @@ func Load() (*Config, error) {
 	}
 
 	cfg := &Config{
-		AppEnv:   getenv(EnvAppEnv, defaultAppEnv),
-		LogLevel: getenv(EnvLogLevel, defaultLogLevel),
+		AppEnv:        getenv(EnvAppEnv, defaultAppEnv),
+		LogLevel:      getenv(EnvLogLevel, defaultLogLevel),
+		AdvertiseHost: getenv(EnvAgentAdvertiseHost, defaultAdvertiseHost),
 		Postgres: PostgresConfig{
 			Host:     getenv(EnvPostgresHost, defaultPostgresHost),
 			Port:     port,
@@ -177,6 +187,7 @@ func Load() (*Config, error) {
 		},
 		MCP: MCPConfig{
 			WebSearchAPIKey: os.Getenv(EnvMCPWebSearchKey),
+			WebSearchURL:    os.Getenv(EnvMCPWebSearchURL),
 			SQLiteDir:       getenv(EnvMCPSQLiteDir, defaultMCPSQLiteDir),
 		},
 		Blob: BlobConfig{
