@@ -30,10 +30,31 @@ func Parse(agentName string) Options {
 	return opts
 }
 
+// ServerDefaults, bir ajan sunucusu için varsayılan portlardır.
+type ServerDefaults struct {
+	GRPCPort int
+	CardPort int
+}
+
+// ParseServer, varsayılan portları uygulayarak sunucu bayraklarını ayrıştırır.
+func ParseServer(agentName string, defaults ServerDefaults) Options {
+	var opts Options
+	flag.IntVar(&opts.GRPCPort, "grpc-port", defaults.GRPCPort, "A2A gRPC sunucusunun portu")
+	flag.IntVar(&opts.CardPort, "card-port", defaults.CardPort, "AgentCard HTTP sunucusunun portu")
+	flag.StringVar(&opts.LogLevel, "log-level", "info", "Log seviyesi (debug|info|warn|error)")
+	flag.Parse()
+	return opts
+}
+
 // Logger, seçeneklerdeki log seviyesine göre bir slog.Logger oluşturur.
 func Logger(opts Options) *slog.Logger {
+	return NewLogger(opts.LogLevel)
+}
+
+// NewLogger, verilen seviye için JSON çıktılı bir slog.Logger oluşturur.
+func NewLogger(levelName string) *slog.Logger {
 	var level slog.Level
-	switch opts.LogLevel {
+	switch levelName {
 	case "debug":
 		level = slog.LevelDebug
 	case "warn":
