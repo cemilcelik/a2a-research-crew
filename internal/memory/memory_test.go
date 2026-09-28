@@ -74,7 +74,7 @@ func newTestPostgresStore(t *testing.T) *PostgresStore {
 	if dsn == "" {
 		t.Skip("TEST_POSTGRES_DSN not set; skipping PostgreSQL integration test")
 	}
-	store, err := NewPostgresStore(context.Background(), dsn, llm.NewMockEmbedder(64))
+	store, err := NewPostgresStore(context.Background(), dsn, llm.NewMockEmbedder(DefaultEmbeddingDimensions))
 	if err != nil {
 		t.Fatalf("NewPostgresStore() error: %v", err)
 	}

@@ -9,6 +9,11 @@ import (
 	"a2a-research-crew/internal/llm"
 )
 
+// DefaultEmbeddingDimensions, pgvector kolonunun sabit boyutudur. Sağlayıcı
+// değişse bile şemanın tutarlı kalması için tüm bileşenler bu değeri
+// kullanmalıdır.
+const DefaultEmbeddingDimensions = 1536
+
 // MessageStore, bağlam (context) bazlı konuşma geçmişini saklar.
 type MessageStore interface {
 	// Append, verilen bağlama mesajları ekler.
