@@ -128,6 +128,27 @@ func TestRuntimeMaxIterations(t *testing.T) {
 	}
 }
 
+func TestRuntimeClarificationStopsForInput(t *testing.T) {
+	provider := llm.NewScripted(llm.Response{
+		FinishReason: "tool_calls",
+		ToolCalls:    []llm.ToolCall{{ID: "c1", Name: "ask_user", Arguments: []byte(`{"question":"Which company?"}`)}},
+	})
+	rt := New(Spec{Name: "orchestrator", ClarificationTool: "ask_user"}, Deps{
+		LLM:    provider,
+		Memory: memory.NewMockStore(nil),
+		Logger: discardLogger(),
+	})
+
+	events := collect(rt.Execute(context.Background(), newExecCtx("research a company")))
+	task := lastTask(events)
+	if task == nil || task.Status.State != a2a.TaskStateInputRequired {
+		t.Fatalf("state = %v, want input-required", task)
+	}
+	if len(task.Artifacts) != 0 {
+		t.Fatalf("artifacts = %+v, want none on input-required", task.Artifacts)
+	}
+}
+
 // lastTask, olay akışındaki son görev durumunu döner.
 func lastTask(events []a2a.Event) *a2a.Task {
 	task := &a2a.Task{}

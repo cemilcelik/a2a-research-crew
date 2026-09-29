@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"iter"
 	"log/slog"
+	"strings"
 
 	"github.com/a2aproject/a2a-go/v2/a2a"
 	"github.com/a2aproject/a2a-go/v2/a2asrv"
@@ -34,6 +35,10 @@ type Spec struct {
 	RecallLimit int
 	// ArtifactName, üretilen artefaktın insan-okur adıdır.
 	ArtifactName string
+	// ClarificationTool, tanımlıysa modele "kullanıcıdan bilgi iste" aracı
+	// olarak sunulur. Model bu aracı çağırdığında görev input-required
+	// durumuna geçer ve akış durur.
+	ClarificationTool string
 }
 
 // Deps, Runtime'ın dış bağımlılıklarıdır.
@@ -93,7 +98,7 @@ func (r *Runtime) Execute(ctx context.Context, execCtx *a2asrv.ExecutorContext) 
 
 		answer, err := r.answer(ctx, execCtx, yield)
 		if err != nil {
-			if errors.Is(err, errConsumerStopped) {
+			if errors.Is(err, errConsumerStopped) || errors.Is(err, errInputRequired) {
 				return
 			}
 			r.deps.Logger.Error("agent execution failed", "agent", r.spec.Name, "task_id", execCtx.TaskID, "error", err)
@@ -142,6 +147,13 @@ func (r *Runtime) answer(ctx context.Context, execCtx *a2asrv.ExecutorContext, e
 	if r.deps.Tools != nil {
 		tools = r.deps.Tools.ToolDefs()
 	}
+	if r.spec.ClarificationTool != "" {
+		tools = append(tools, llm.ToolDef{
+			Name:        r.spec.ClarificationTool,
+			Description: "Ask the user for information that is missing before you can continue.",
+			Parameters:  []byte(`{"type":"object","properties":{"question":{"type":"string","description":"the question to ask the user"}},"required":["question"]}`),
+		})
+	}
 
 	for i := 0; i < r.spec.MaxToolIterations; i++ {
 		resp, err := r.deps.LLM.Complete(ctx, llm.Request{
@@ -178,6 +190,12 @@ func (r *Runtime) answer(ctx context.Context, execCtx *a2asrv.ExecutorContext, e
 		}
 
 		for _, call := range resp.ToolCalls {
+			if call.Name == r.spec.ClarificationTool {
+				question := clarificationQuestion(call.Arguments)
+				message := a2a.NewMessage(a2a.MessageRoleAgent, a2a.NewTextPart(question))
+				emit(a2a.NewStatusUpdateEvent(execCtx, a2a.TaskStateInputRequired, message), nil)
+				return "", errInputRequired
+			}
 			result, err := r.callTool(ctx, call)
 			if err != nil {
 				return "", err
@@ -222,6 +240,21 @@ func (r *Runtime) callTool(ctx context.Context, call llm.ToolCall) (tool.Result,
 
 // errConsumerStopped, olay tüketicisi akışı durdurduğunda kullanılır.
 var errConsumerStopped = fmt.Errorf("event consumer stopped")
+
+// errInputRequired, görev kullanıcı girdisi beklediğinde kullanılır.
+var errInputRequired = fmt.Errorf("input required")
+
+// clarificationQuestion, netleştirme aracının argümanlarından soruyu çıkarır.
+func clarificationQuestion(raw []byte) string {
+	args := map[string]any{}
+	if len(raw) > 0 {
+		_ = json.Unmarshal(raw, &args)
+	}
+	if question, ok := args["question"].(string); ok && strings.TrimSpace(question) != "" {
+		return question
+	}
+	return "Could you provide more details?"
+}
 
 // messageText, bir A2A mesajındaki metin parçalarını birleştirir.
 func messageText(msg *a2a.Message) string {
