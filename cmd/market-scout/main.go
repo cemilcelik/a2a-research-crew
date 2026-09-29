@@ -61,9 +61,9 @@ func main() {
 			Tags:        []string{"market", "research", "trends"},
 			Examples:    []string{"Research the electric vehicle market", "How big is the CRM market?"},
 		},
-		ListenGRPCPort: opts.GRPCPort,
-		ListenCardPort: opts.CardPort,
-		BuildTools:     buildTools,
+		GRPCPort:   opts.GRPCPort,
+		CardPort:   opts.CardPort,
+		BuildTools: buildTools,
 	}
 
 	if err := agentapp.Run(context.Background(), cfg, appOpts); err != nil {

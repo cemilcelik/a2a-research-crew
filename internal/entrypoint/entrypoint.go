@@ -12,8 +12,10 @@ import (
 
 // Options, tüm ajan süreçlerinin ortak komut satırı seçenekleridir.
 type Options struct {
-	// GRPCPort, ajanlar arası A2A gRPC sunucusunun dinleyeceği porttur.
+	// GRPCPort, ajanlar arası A2A gRPC sunucusunun dinleyeceği porttur (0 = kapalı).
 	GRPCPort int
+	// RESTPort, HTTP+JSON/REST sunucusunun dinleyeceği porttur (0 = kapalı).
+	RESTPort int
 	// CardPort, genel AgentCard HTTP sunucusunun dinleyeceği porttur.
 	CardPort int
 	// LogLevel, slog seviyesini belirler (debug, info, warn, error).
@@ -33,13 +35,15 @@ func Parse(agentName string) Options {
 // ServerDefaults, bir ajan sunucusu için varsayılan portlardır.
 type ServerDefaults struct {
 	GRPCPort int
+	RESTPort int
 	CardPort int
 }
 
 // ParseServer, varsayılan portları uygulayarak sunucu bayraklarını ayrıştırır.
 func ParseServer(agentName string, defaults ServerDefaults) Options {
 	var opts Options
-	flag.IntVar(&opts.GRPCPort, "grpc-port", defaults.GRPCPort, "A2A gRPC sunucusunun portu")
+	flag.IntVar(&opts.GRPCPort, "grpc-port", defaults.GRPCPort, "A2A gRPC sunucusunun portu (0 = kapalı)")
+	flag.IntVar(&opts.RESTPort, "rest-port", defaults.RESTPort, "A2A HTTP+JSON/REST sunucusunun portu (0 = kapalı)")
 	flag.IntVar(&opts.CardPort, "card-port", defaults.CardPort, "AgentCard HTTP sunucusunun portu")
 	flag.StringVar(&opts.LogLevel, "log-level", "info", "Log seviyesi (debug|info|warn|error)")
 	flag.Parse()

@@ -63,9 +63,9 @@ func main() {
 			Tags:        []string{"competitors", "analysis", "sql"},
 			Examples:    []string{"Compare the main EV manufacturers", "Build a competitor matrix for CRM vendors"},
 		},
-		ListenGRPCPort: opts.GRPCPort,
-		ListenCardPort: opts.CardPort,
-		BuildTools:     buildTools,
+		GRPCPort:   opts.GRPCPort,
+		CardPort:   opts.CardPort,
+		BuildTools: buildTools,
 	}
 
 	if err := agentapp.Run(context.Background(), cfg, appOpts); err != nil {

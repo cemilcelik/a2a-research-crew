@@ -62,9 +62,9 @@ func main() {
 			Tags:        []string{"report", "writing", "synthesis"},
 			Examples:    []string{"Write the final research report", "Turn these findings into an executive summary"},
 		},
-		ListenGRPCPort: opts.GRPCPort,
-		ListenCardPort: opts.CardPort,
-		BuildTools:     buildTools,
+		GRPCPort:   opts.GRPCPort,
+		CardPort:   opts.CardPort,
+		BuildTools: buildTools,
 	}
 
 	if err := agentapp.Run(context.Background(), cfg, appOpts); err != nil {
