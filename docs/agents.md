@@ -55,6 +55,40 @@ sequenceDiagram
 6. `a2agrpc` A2A sunucusu + genel AgentCard HTTP sunucusu.
 7. Sinyalle zarif kapanış.
 
+## orchestrator (Phase 4)
+
+- **Giriş noktası**: dış dünyaya **HTTP+JSON/REST** açılır (gRPC açmaz).
+- **JWT uçları**: `POST /auth/login`, `POST /auth/refresh` (bcrypt + Postgres
+  `users` tablosu).
+- **Araçlar**: uzman ajanlar **agent-as-tool** olarak sunulur (A2A gRPC) +
+  uzun vadeli hafıza MCP araçları (`recall_memory`, `remember_note`).
+- **Planlama**: LLM, `market_scout` → `competitor_analyst` → `report_writer`
+  sırasını kendi seçer ve sonucu sentezler.
+- **Artefakt**: `research-report`.
+- **Netleştirme**: eksik bilgi varsa `ask_user` aracı çağrılır ve görev
+  `input-required` durumuna geçer.
+- **Model**: `ORCHESTRATOR_MODEL`.
+
+### Orchestrator akışı
+
+```mermaid
+sequenceDiagram
+    participant CLI
+    participant O as orchestrator (REST)
+    participant S as uzmanlar (gRPC)
+    CLI->>O: POST /auth/login
+    O-->>CLI: access + refresh token
+    CLI->>O: message:send (Bearer JWT, REST)
+    O->>O: LLM plan + recall_memory
+    O->>S: market_scout (gRPC + JWT)
+    S-->>O: market brief (artifact)
+    O->>S: competitor_analyst
+    S-->>O: competitor matrix (artifact)
+    O->>S: report_writer
+    S-->>O: final report (artifact)
+    O-->>CLI: research-report artifact (SSE ile kademeli)
+```
+
 ## market-scout (Phase 2)
 
 - **Skill**: `market_research`.
