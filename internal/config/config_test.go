@@ -97,6 +97,8 @@ func clearEnv(t *testing.T) {
 		EnvJWTSecret, EnvJWTIssuer, EnvJWTAccessTTL, EnvJWTRefreshTTL,
 		EnvLLMProvider, EnvLLMOpenAIKey, EnvLLMAnthropicKey, EnvLLMGeminiKey, EnvLLMCompatBaseURL, EnvLLMCompatAPIKey,
 		EnvMCPWebSearchKey, EnvMCPSQLiteDir, EnvMCPWebSearchURL, EnvMCPFSRoot,
+		EnvMarketScoutURL, EnvCompetitorAnalystURL, EnvReportWriterURL,
+		EnvAuthAdminUsername, EnvAuthAdminPassword, EnvAuthAdminRoles,
 		EnvBlobStore, EnvBlobFSRoot, EnvMinioEndpoint, EnvMinioAccessKey, EnvMinioSecretKey, EnvMinioBucket,
 	}
 	for _, k := range keys {

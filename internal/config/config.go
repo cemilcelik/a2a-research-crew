@@ -49,6 +49,16 @@ const (
 	EnvMinioAccessKey = "MINIO_ACCESS_KEY"
 	EnvMinioSecretKey = "MINIO_SECRET_KEY"
 	EnvMinioBucket    = "MINIO_BUCKET"
+
+	// Orchestrator'ın uzman ajanlara ulaşacağı AgentCard taban URL'leri.
+	EnvMarketScoutURL       = "MARKET_SCOUT_URL"
+	EnvCompetitorAnalystURL = "COMPETITOR_ANALYST_URL"
+	EnvReportWriterURL      = "REPORT_WRITER_URL"
+
+	// Demo amaçlı yönetici kullanıcısının başlangıç bilgileri.
+	EnvAuthAdminUsername = "AUTH_ADMIN_USERNAME"
+	EnvAuthAdminPassword = "AUTH_ADMIN_PASSWORD"
+	EnvAuthAdminRoles    = "AUTH_ADMIN_ROLES"
 )
 
 // Varsayılan değerler.
@@ -70,6 +80,11 @@ const (
 	defaultBlobFSRoot    = "./data/artifacts"
 	defaultMinioBucket   = "artifacts"
 	defaultAdvertiseHost = "127.0.0.1"
+
+	defaultMarketScoutURL       = "http://127.0.0.1:9201"
+	defaultCompetitorAnalystURL = "http://127.0.0.1:9202"
+	defaultReportWriterURL      = "http://127.0.0.1:9203"
+	defaultAuthAdminRoles       = "admin,researcher"
 )
 
 // Config, uygulamanın tüm yapılandırmasını taşır.
@@ -86,6 +101,28 @@ type Config struct {
 	LLM      LLMConfig
 	MCP      MCPConfig
 	Blob     BlobConfig
+	Agents   AgentsConfig
+	Auth     AuthConfig
+}
+
+// AgentsConfig, orchestrator'ın uzman ajanlara ulaşacağı AgentCard taban
+// URL'lerini taşır.
+type AgentsConfig struct {
+	MarketScoutURL       string
+	CompetitorAnalystURL string
+	ReportWriterURL      string
+}
+
+// AuthConfig, demo amaçlı yönetici kullanıcısının başlangıç bilgilerini taşır.
+type AuthConfig struct {
+	AdminUsername string
+	AdminPassword string
+	AdminRoles    []string
+}
+
+// SeedEnabled, başlangıç kullanıcısının oluşturulup oluşturulmayacağını bildirir.
+func (a AuthConfig) SeedEnabled() bool {
+	return a.AdminUsername != "" && a.AdminPassword != ""
 }
 
 // PostgresConfig, PostgreSQL bağlantı ayarlarını taşır.
@@ -202,6 +239,16 @@ func Load() (*Config, error) {
 			MinioSecretKey: os.Getenv(EnvMinioSecretKey),
 			MinioBucket:    getenv(EnvMinioBucket, defaultMinioBucket),
 		},
+		Agents: AgentsConfig{
+			MarketScoutURL:       getenv(EnvMarketScoutURL, defaultMarketScoutURL),
+			CompetitorAnalystURL: getenv(EnvCompetitorAnalystURL, defaultCompetitorAnalystURL),
+			ReportWriterURL:      getenv(EnvReportWriterURL, defaultReportWriterURL),
+		},
+		Auth: AuthConfig{
+			AdminUsername: os.Getenv(EnvAuthAdminUsername),
+			AdminPassword: os.Getenv(EnvAuthAdminPassword),
+			AdminRoles:    splitCSV(getenv(EnvAuthAdminRoles, defaultAuthAdminRoles)),
+		},
 	}
 
 	if err := cfg.Validate(); err != nil {
@@ -231,6 +278,9 @@ func (c *Config) Validate() error {
 	}
 	if c.Postgres.Port <= 0 || c.Postgres.Port > 65535 {
 		problems = append(problems, "POSTGRES_PORT must be a valid port")
+	}
+	if c.Agents.MarketScoutURL == "" || c.Agents.CompetitorAnalystURL == "" || c.Agents.ReportWriterURL == "" {
+		problems = append(problems, "agent card URLs must not be empty")
 	}
 
 	if len(problems) > 0 {
@@ -273,4 +323,16 @@ func getenvDuration(key string, fallback time.Duration) (time.Duration, error) {
 		return 0, fmt.Errorf("environment variable %s must be a duration: %w", key, err)
 	}
 	return v, nil
+}
+
+// splitCSV, virgülle ayrılmış bir değeri kırpılmış parçalara böler.
+func splitCSV(value string) []string {
+	parts := strings.Split(value, ",")
+	out := make([]string, 0, len(parts))
+	for _, part := range parts {
+		if trimmed := strings.TrimSpace(part); trimmed != "" {
+			out = append(out, trimmed)
+		}
+	}
+	return out
 }
