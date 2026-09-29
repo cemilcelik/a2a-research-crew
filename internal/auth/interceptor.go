@@ -90,6 +90,16 @@ func (i *ClientInterceptor) Before(ctx context.Context, req *a2aclient.Request) 
 	return ctx, nil, nil
 }
 
+// BearerFromCallContext, gelen çağrının ServiceParams'ından Bearer token'ı
+// çıkarır. Token yoksa boş string döner.
+func BearerFromCallContext(ctx context.Context) string {
+	callCtx, ok := a2asrv.CallContextFrom(ctx)
+	if !ok {
+		return ""
+	}
+	return bearerToken(callCtx.ServiceParams())
+}
+
 func bearerToken(params *a2asrv.ServiceParams) string {
 	values, ok := params.Get(ServiceParamAuthorization)
 	if !ok || len(values) == 0 {
