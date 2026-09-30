@@ -78,6 +78,6 @@ Ayrıntılı mimari ve akışlar için [`docs/`](./docs) dizinine bakın.
 - [x] **Phase 2** — İlk uzman ajan (`market-scout`) uçtan uca
 - [x] **Phase 3** — Diğer uzmanlar (`competitor-analyst`, `report-writer`)
 - [x] **Phase 4** — Organizatör (REST girişi + gRPC + streaming)
-- [ ] **Phase 5** — CLI
+- [x] **Phase 5** — CLI
 - [ ] **Phase 6** — Kalıcılık ve sağlamlaştırma
 - [ ] **Phase 7** — Dokümantasyon ve finalizasyon
